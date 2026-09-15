@@ -5,9 +5,13 @@
 ## 快速上手
 
 ```bash
-git clone git@github.com:STU-MS/TopoSort.git
-# 环境要求：Python 3.10+，依赖清单见 app/requirements.txt（搭骨架时生成）
+git clone git@github.com:STU-MS/TopoSort.git && cd TopoSort
+curl -LsSf https://astral.sh/uv/install.sh | sh   # 装 uv（仅需一次）
+uv sync                                            # 创建虚拟环境 + 按锁安装依赖
+uv run python app/main.py                          # 运行
 ```
+
+> 全程只用 uv：跑程序 `uv run ...`，跑测试 `uv run pytest`，加依赖 `uv add 包名`。**禁止 pip install 裸装。**
 
 ## 每天开工前
 

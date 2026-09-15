@@ -1,0 +1,24 @@
+[project]
+name = "toposort"
+version = "0.1.0"
+description = "拓扑排序应用软件：输入先修关系，动画演示排序全过程，输出尽可能多的拓扑序列（CST4823A 小组项目）"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pyside6>=6.7",
+]
+
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.0",
+    "pytest>=8.0",
+]
+
+[tool.uv]
+# 统一管理：所有依赖只在这里和 uv.lock 里声明，禁止 pip install 裸装
+
+[tool.pytest.ini_options]
+testpaths = ["app/tests"]
+
+[tool.pyinstaller]
+# 打包入口：app/main.py（骨架搭好后提供 tools/build.sh）

@@ -17,6 +17,8 @@
 TopoSort/
 ├── AGENTS.md            # 本规范（最高优先级）
 ├── CONTRIBUTING.md      # 人类组员协作须知（简要，指向本文件）
+├── pyproject.toml       # ★ uv 工程定义：依赖只在这里声明（唯一入口）
+├── uv.lock              # ★ uv 锁定文件：改了 pyproject 必须一并提交
 ├── app/                 # 全部源码（Python 3 + PySide6）
 │   ├── models.py        # 图模型 + <a,b> 解析 + Kahn + 全序枚举 + 环检测（算法必须自研）
 │   ├── events.py        # Step 事件流：Enqueue/Consume/Fork/Complete/DeadEnd/Cycle
@@ -42,7 +44,6 @@ TopoSort/
 ```
 
 ## 二、四条留档习惯（成本 = “顺手”，违反 = 报告没素材）
-
 1. **决策 → Issue → 留档**：讨论定了就开 issue；定稿当天把结论写成 `evidence/decisions/YYYY-MM-DD-主题.md`（含背景、选项、结论、理由、日期、参与人）。
 2. **完成一个可见功能 → 截图**：存 `evidence/screenshots/`，命名 `功能名-YYYYMMDD-N.png`。报告截图永远从这里挑。
 3. **性能测试 → 追加一行 CSV**：极速模式每跑一次大图就往 `evidence/benchmarks.csv` 追加，格式见结构注释。不许删改旧行（append-only）。
@@ -50,8 +51,9 @@ TopoSort/
 
 ## 三、开发红线
 
+- **工程管理统一用 uv**：装环境 `uv sync`，跑程序 `uv run python app/main.py`，跑测试 `uv run pytest`，加依赖 `uv add 包名`（自动更新 uv.lock）。**禁止 pip install 裸装、禁止手写 requirements.txt。**
 - **算法必须自研**（Kahn 排序、全序枚举、环检测）——这是作业考点，禁用 networkx 等库的现成排序。
-- 库只用于：GUI（PySide6）、打包（PyInstaller）。新增依赖须开 issue 讨论并留档。
+- 库只用于：GUI（PySide6）、测试（pytest）、打包（PyInstaller）。新增依赖须 `uv add` 并开 issue 讨论并留档。
 - 技术栈已定案（见 Issue #1）：**Python 3 + PySide6 + PyInstaller 单文件**，组员不得私自更换。
 - `docs/` 内老师文件只读。
 - 提交信息格式：`类型: 摘要`，类型 ∈ {feat, fix, docs, test, refactor, evidence}。
@@ -59,5 +61,6 @@ TopoSort/
 ## 四、AI 代理附加要求
 
 - 开工前：读本文件 → `git log`/`evidence/decisions/` 了解已定决策 → 有疑问先提 issue。
+- **一律用 uv 执行 Python 命令**（`uv run ...`），不要激活/自建 venv、不要裸 pip。
 - 完成任务后：按第二节留档习惯补齐素材（截图/CSV/决策 md），并更新本文件中已过时的描述。
 - 不确定 = 不猜：向 issue 提问，等组长确认后再动手。
