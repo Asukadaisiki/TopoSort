@@ -1,12 +1,18 @@
 name: CI
 
+# 两层判定策略（见 evidence/decisions/2026-09-15-契约定案.md 第9节）：
+#   L1 infra 层：机械红线 + 文档检查 —— 必须绿，分支保护强制（不绿禁止合并）
+#   L2 模块层：各模块契约测试 —— 红即"该模块未完成"的路标（红得指名道姓），
+#      对应模块 PR 合并时必须翻绿（人工在 review 中核对），不阻塞其他模块的合并
+
 on:
   push:
     branches: [master]
   pull_request:
 
 jobs:
-  test:
+  infra:
+    name: "L1-infra (机械红线, 必须绿)"
     strategy:
       fail-fast: false
       matrix:
@@ -17,20 +23,68 @@ jobs:
 
       - uses: astral-sh/setup-uv@v5
 
+      # Linux 无显示器环境需要 Qt 基础系统库（offscreen 平台仍依赖 libEGL 等）
+      - name: 安装 Qt 系统库（仅 Linux）
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libxkbcommon0 libdbus-1-3
+
       - name: 安装依赖
         run: uv sync
 
-      - name: 测试（含契约红测试）
-        run: uv run pytest -q
+      - name: 机械红线契约测试（零Qt/跨平台路径等）
+        run: uv run pytest app/tests/test_contracts.py -q
 
       - name: 文档/素材引用检查
         if: matrix.os == 'ubuntu-latest'
         run: uv run python tools/check_docs.py
 
+  suite-core:
+    name: "L2-T2 models 红测试（绿=T2验收）"
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest app/tests/test_models.py -q
+
+  suite-events:
+    name: "L2-T3 events 红测试（绿=T3验收）"
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest app/tests/test_events.py -q
+
+  suite-scene:
+    name: "L2-T4 scene 红测试（绿=T4验收）"
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest app/tests/test_scene.py -q
+
+  suite-ui:
+    name: "L2-T5 ui 红测试（绿=T5验收）"
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest app/tests/test_ui.py -q
+
   build-windows-exe:
-    # Windows 单文件产物：只有在 Windows 上才能打包，由 CI 代工
+    # Windows 单文件产物：只有在 Windows 上才能打包，由 CI 代工。
+    # L1 全绿即触发（不等模块完成）；产物含占位界面直到 T6 完成。
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    needs: test
+    needs: infra
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4

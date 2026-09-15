@@ -12,13 +12,13 @@ dependencies = [
 dev = [
     "pyinstaller>=6.0",
     "pytest>=8.0",
+    "pytest-qt>=4.4",
 ]
-
-[tool.uv]
-# 统一管理：所有依赖只在这里和 uv.lock 里声明，禁止 pip install 裸装
 
 [tool.pytest.ini_options]
 testpaths = ["app/tests"]
+# 让 `import app.xxx` 从仓库根解析（无 src 布局的轻量方案）
+pythonpath = ["."]
 
 [tool.pyinstaller]
 # 打包入口：app/main.py（骨架搭好后提供 tools/build.sh）
