@@ -19,12 +19,22 @@ TopoSort/
 ├── CONTRIBUTING.md      # 人类组员协作须知（简要，指向本文件）
 ├── pyproject.toml       # ★ uv 工程定义：依赖只在这里声明（唯一入口）
 ├── uv.lock              # ★ uv 锁定文件：改了 pyproject 必须一并提交
-├── app/                 # 全部源码（Python 3 + PySide6）
-│   ├── models.py        # 图模型 + <a,b> 解析 + Kahn + 全序枚举 + 环检测（算法必须自研）
-│   ├── events.py        # Step 事件流：Enqueue/Consume/Fork/Complete/DeadEnd/Cycle
-│   ├── scene.py         # QGraphicsView 场景：分层布局、节点/边动画、候选池
-│   ├── ui.py            # 输入区/控制条(速度·暂停·单步)/分支泳道/结果流
-│   └── main.py          # 装配 + 程序入口
+├── app/                 # 全部源码（Python 3 + PySide6，包结构，单文件单一职责）
+│   ├── main.py          # 装配 + 程序入口
+│   ├── models/          # 纯逻辑层：零 Qt 依赖（CI 强制）
+│   │   ├── graph.py     #   图数据结构 + layers() 分层
+│   │   ├── parser.py    #   <a,b> 解析 + 错误报告
+│   │   └── enumerator.py#   Kahn + 环检测 + 全序枚举/计数（算法自研）
+│   ├── events/          # 事件层：零 Qt 依赖
+│   │   ├── protocol.py  #   StepEvent 定义（唯一定义处）
+│   │   ├── player.py    #   算法 → 确定性事件流
+│   │   └── timeline.py  #   伪并发调度（tick/暂停/单步/调速/泳道上限）
+│   ├── scene/           # 渲染层：只认事件，不懂算法
+│   │   ├── board.py     #   图画布：分层布局消费、节点/边、平移缩放
+│   │   ├── effects.py   #   动画：渐隐/脉冲/边淡化
+│   │   └── pool.py      #   候选池芯片 + PNG 导出
+│   └── ui/              # 界面层：组装与信号槽
+│       ├── main_window.py / input_panel.py / control_bar.py / lanes.py / results.py
 ├── deliverables/        # 最终交付文档（写报告直接在这里写，编号固定）
 │   ├── 01-可行性研究报告.md
 │   ├── 02-需求分析.md
