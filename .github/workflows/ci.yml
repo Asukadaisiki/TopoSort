@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: 安装依赖
+        run: uv sync
+
+      - name: 测试（含契约红测试）
+        run: uv run pytest -q
+
+      - name: 文档/素材引用检查
+        if: matrix.os == 'ubuntu-latest'
+        run: uv run python tools/check_docs.py
+
+  build-windows-exe:
+    # Windows 单文件产物：只有在 Windows 上才能打包，由 CI 代工
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - name: PyInstaller 打包
+        run: uv run pyinstaller --onefile --window app/main.py
+      - name: 计算校验和
+        shell: pwsh
+        run: Get-FileHash dist/*.exe -Algorithm SHA256 | Out-File dist/SHA256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TopoSort-windows-x64
+          path: dist/
