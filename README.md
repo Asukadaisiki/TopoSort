@@ -15,7 +15,7 @@
 |---|---|---|
 | 语言 | Python 3.11+ | |
 | GUI | PySide6（QGraphicsView） | 动画完全可控 |
-| 打包 | PyInstaller | 单文件，双击即跑 |
+| 打包 | PyInstaller | 三端单文件：Windows/macOS/Linux |
 | **工程管理** | **uv（唯一标准）** | 依赖、虚拟环境、运行、测试全走 uv |
 | 测试 | pytest | 用例数据在 `evidence/test-data/` |
 
@@ -37,11 +37,20 @@ uv run python app/main.py
 # 3. 测试
 uv run pytest
 
-# 4. 打包单文件（产物在 dist/）
+# 4. 打包单文件（产物在 dist/，需在目标平台上各自构建：Windows 产物走 GitHub Actions）
 uv run pyinstaller --onefile --noconsole app/main.py
 ```
 
 > ⚠️ 本项目**禁止** `pip install` 裸装依赖：加依赖 = 改 `pyproject.toml` → `uv add 包名` → 提交 `uv.lock`。
+> 三端通用：不要使用平台专属 API，路径用 `pathlib`，文件读写显式 UTF-8（详见 AGENTS.md）。
+
+## 平台支持
+
+| 平台 | 开发 | 打包 | 说明 |
+|---|---|---|---|
+| Windows | ✅ | ✅ CI 产出 | 产物由 Actions windows-latest 构建并附 SHA256 |
+| macOS | ✅ | ✅ 本机 | |
+| Linux | ✅ | ✅ 本机 | |
 
 ## 仓库结构
 

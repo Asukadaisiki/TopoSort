@@ -64,7 +64,8 @@ TopoSort/
 - **工程管理统一用 uv**：装环境 `uv sync`，跑程序 `uv run python app/main.py`，跑测试 `uv run pytest`，加依赖 `uv add 包名`（自动更新 uv.lock）。**禁止 pip install 裸装、禁止手写 requirements.txt。**
 - **算法必须自研**（Kahn 排序、全序枚举、环检测）——这是作业考点，禁用 networkx 等库的现成排序。
 - 库只用于：GUI（PySide6）、测试（pytest）、打包（PyInstaller）。新增依赖须 `uv add` 并开 issue 讨论并留档。
-- 技术栈已定案（见 Issue #1）：**Python 3 + PySide6 + PyInstaller 单文件**，组员不得私自更换。
+## 技术栈已定案（见 Issue #1）：**Python 3 + PySide6 + PyInstaller 单文件**，组员不得私自更换。
+- **三端通用（Windows / macOS / Linux）是硬性要求**：代码禁用平台专属 API，路径用 `pathlib`，文件读写显式 `encoding='utf-8'`；CI 三平台矩阵验证。
 - `docs/` 内老师文件只读。
 - 提交信息格式：`类型: 摘要`，类型 ∈ {feat, fix, docs, test, refactor, evidence}。
 
